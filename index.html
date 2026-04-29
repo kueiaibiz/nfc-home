@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 NFC 音樂空間</title>
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: linear-gradient(45deg, #1db954, #191414);
+            color: white; font-family: sans-serif; overflow: hidden;
+        }
+        #disc {
+            width: 250px; height: 250px;
+            border-radius: 50%;
+            background: url('https://cdn-icons-png.flaticon.com/512/33/33716.png') center/cover;
+            border: 10px solid #333;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .spinning { animation: spin 3s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #status { margin-top: 30px; font-size: 1.2rem; text-align: center; }
+        .btn {
+            margin-top: 20px; padding: 15px 40px;
+            border-radius: 30px; border: none;
+            background: #1db954; color: white; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="disc"></div>
+    <div id="status">感應成功！<br>點擊唱片啟動音樂能量</div>
+    <button class="btn" onclick="startMusic()">啟動</button>
+
+    <audio id="bgm" src="你的音樂網址.mp3" loop></audio>
+
+    <script>
+        const disc = document.getElementById('disc');
+        const bgm = document.getElementById('bgm');
+        const status = document.getElementById('status');
+
+        function startMusic() {
+            bgm.play();
+            disc.classList.add('spinning');
+            status.innerHTML = "正在為您播放...<br>歡迎來到我們的音樂冰箱";
+            document.querySelector('.btn').style.display = 'none';
+        }
+
+        // 大膽的時段邏輯
+        const hour = new Date().getHours();
+        if (hour < 12) {
+            document.body.style.background = "linear-gradient(45deg, #ff9a9e, #fad0c4)";
+            status.innerHTML = "早安！感應成功<br>準備好開啟活力的一天嗎？";
+        } else if (hour > 18) {
+            document.body.style.background = "linear-gradient(45deg, #2c3e50, #000000)";
+        }
+    </script>
+</body>
+</html>
