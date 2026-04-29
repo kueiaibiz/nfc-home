@@ -2,61 +2,188 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的 NFC 音樂空間</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NFC 黑膠音樂站</title>
     <style>
+        :root {
+            --bg-color: #e0e0e0; /* 牆面顏色 */
+            --player-color: #2c3e50; /* 唱機座顏色 */
+            --record-color: #1a1a1a; /* 黑膠顏色 */
+            --vinyl-rings: repeating-radial-gradient(circle at center, rgba(0,0,0,0.8) 0px, rgba(0,0,0,0.8) 1px, transparent 2px);
+        }
+
         body {
             margin: 0; padding: 0; height: 100vh;
+            background-color: var(--bg-color);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: linear-gradient(45deg, #1db954, #191414);
-            color: white; font-family: sans-serif; overflow: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            /* 增加整體場景的立體透視感 */
+            perspective: 1500px;
         }
-        #disc {
-            width: 250px; height: 250px;
+
+        /* 3D 唱機基座 */
+        .turntable-base {
+            width: 320px; height: 320px;
+            background-color: var(--player-color);
+            border-radius: 20px;
+            position: relative;
+            /* 輕微向後傾斜，創造 3D 視角 */
+            transform: rotateX(25deg) rotateY(-5deg) rotateZ(0deg);
+            transform-style: preserve-3d;
+            
+            /* 逼真的擬物陰影 */
+            box-shadow: 
+                20px 30px 60px rgba(0,0,0,0.3), /* 柔和環境陰影 */
+                -5px -5px 10px rgba(255,255,255,0.1) inset, /* 內部高光 */
+                5px 5px 15px rgba(0,0,0,0.5) inset; /* 內部深色陰影 */
+            
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+        }
+
+        /* 點擊時的互動效果 */
+        .turntable-base:active {
+            transform: rotateX(20deg) rotateY(-3deg) rotateZ(0deg) translateZ(-10px);
+        }
+
+        /* 黑膠唱盤 */
+        .platter {
+            width: 280px; height: 280px;
+            background-color: #000;
             border-radius: 50%;
-            background: url('https://cdn-icons-png.flaticon.com/512/33/33716.png') center/cover;
-            border: 10px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute;
+            top: 20px; left: 20px;
+            
+            /* 模擬唱片溝槽和光澤 */
+            background-image: 
+                var(--vinyl-rings),
+                radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 60%);
+            
+            /* 唱盤側邊的 3D 厚度 */
+            border: 4px solid #333;
+            box-shadow: 
+                0 0 10px rgba(0,0,0,0.8),
+                0 0 2px 2px rgba(255,255,255,0.05) inset;
+            
+            transform: translateZ(15px); /* 讓唱盤凸出於基座 */
+            transform-style: preserve-3d;
         }
-        .spinning { animation: spin 3s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        #status { margin-top: 30px; font-size: 1.2rem; text-align: center; }
-        .btn {
-            margin-top: 20px; padding: 15px 40px;
-            border-radius: 30px; border: none;
-            background: #1db954; color: white; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+
+        /* 唱片中心標籤 (可自訂圖片) */
+        .label {
+            width: 90px; height: 90px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: calc(50% - 45px); left: calc(50% - 45px);
+            border: 2px solid #fff;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            transform: translateZ(1px); /* 確保在溝槽上方 */
         }
+
+        /* 唱盤轉動起動效 */
+        .spinning {
+            animation: spin 3s linear infinite;
+            animation-play-state: paused; /* 初始暫停 */
+        }
+
+        @keyframes spin { 100% { transform: translateZ(15px) rotateZ(360deg); } }
+
+        /* 金屬唱臂 (模擬 3D 圓柱體質感) */
+        .tonearm {
+            width: 20px; height: 220px;
+            background: linear-gradient(90deg, #95a5a6 0%, #bdc3c7 40%, #95a5a6 50%, #7f8c8d 60%, #95a5a6 100%);
+            position: absolute;
+            top: 30px; right: 40px;
+            border-radius: 10px;
+            
+            /* 唱臂的金屬質感陰影 */
+            box-shadow: 
+                2px 2px 5px rgba(0,0,0,0.5),
+                -1px -1px 2px rgba(255,255,255,0.3) inset;
+            
+            /* 設定旋轉支點在唱臂頂部 */
+            transform-origin: center 15px;
+            /* 初始位置：離開唱片 */
+            transform: translateZ(30px) rotateZ(15deg) rotateX(-5deg);
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; /* 防止遮擋點擊唱盤 */
+        }
+
+        /* 唱臂基座 (唱機右上角的金屬圓柱) */
+        .tonearm-base {
+            width: 40px; height: 40px;
+            background: radial-gradient(circle at center, #bdc3c7 0%, #7f8c8d 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: 15px; right: 30px;
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.4),
+                0 2px 2px rgba(255,255,255,0.5) inset;
+            transform: translateZ(20px);
+        }
+
+        /* 啟動狀態的動畫：唱臂移動到唱片上方 */
+        .active .tonearm {
+            transform: translateZ(30px) rotateZ(-22deg) rotateX(0deg);
+        }
+
+        /* 啟動狀態的動畫：唱盤開始轉動 */
+        .active .spinning {
+            animation-play-state: running;
+        }
+
+        /* 下方提示文字 */
+        .info-text {
+            margin-top: 50px;
+            color: #333;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 300;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="disc"></div>
-    <div id="status">感應成功！<br>點擊唱片啟動音樂能量</div>
-    <button class="btn" onclick="startMusic()">啟動</button>
+    <div class="turntable-base" id="player" onclick="startSequence()">
+        
+        <div class="platter spinning">
+            <div class="label">MUSIC<br>ON</div>
+        </div>
+        
+        <div class="tonearm-base"></div>
+        
+        <div class="tonearm"></div>
+    </div>
 
-    <audio id="bgm" src="你的音樂網址.mp3" loop></audio>
+    <div class="info-text">
+        感應成功！<br>
+        <strong>點擊唱機</strong> 啟動 MB3 歌單
+    </div>
 
     <script>
-        const disc = document.getElementById('disc');
-        const bgm = document.getElementById('bgm');
-        const status = document.getElementById('status');
+        let isStarted = false;
 
-        function startMusic() {
-            bgm.play();
-            disc.classList.add('spinning');
-            status.innerHTML = "正在為您播放...<br>歡迎來到我們的音樂冰箱";
-            document.querySelector('.btn').style.display = 'none';
-        }
+        function startSequence() {
+            if (isStarted) return;
+            isStarted = true;
 
-        // 大膽的時段邏輯
-        const hour = new Date().getHours();
-        if (hour < 12) {
-            document.body.style.background = "linear-gradient(45deg, #ff9a9e, #fad0c4)";
-            status.innerHTML = "早安！感應成功<br>準備好開啟活力的一天嗎？";
-        } else if (hour > 18) {
-            document.body.style.background = "linear-gradient(45deg, #2c3e50, #000000)";
+            const player = document.getElementById('player');
+            const infoText = document.querySelector('.info-text强');
+
+            // 1. 新增 'active' 類別，觸發唱臂移動和唱盤轉動動畫
+            player.classList.add('active');
+            infoText.innerHTML = "正在載入媽媽的專屬歌單...<br>請稍候";
+
+            // 2. 模擬儀式感延遲 (等唱臂落下)，然後跳轉到 MB3
+            setTimeout(function() {
+                // 這裡填入你的 MB3 歌單網址
+                window.location.href = "https://www.mbplayer.com/list/107816728";
+            }, 1800); // 1.8 秒後跳轉
         }
     </script>
 </body>
